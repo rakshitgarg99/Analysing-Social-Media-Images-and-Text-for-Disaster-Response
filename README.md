@@ -10,6 +10,9 @@ The project delivers a comprehensive system capable of:
 3. Integrating image and text classification models into a web application for real-time social media post processing.
 4. Ensuring the system can handle multiple requests simultaneously, providing seamless user interaction and scalability.
 
+## Documentation
+Link - [Fyllo Project Documentation](<https://drive.google.com/file/d/1z0sbAYarW81ptaTxwbUjGdRxKHrQuVe3/view?usp=sharing>)
+
 ## Installation
 
 1. **Clone the Repository**
