@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Identification Project</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-sections {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .input-section {
+            width: 32%;
+            height: 400px; /* Increased height */
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .upload-area p {
+            margin: 5px 0;
+        }
+        #textInput {
+            width: 100%;
+            height: 100%;
+            resize: none;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            text-align: center; /* Center the placeholder text */
+        }
+        #textInput::placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+        }
+        #predictButton {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #predictButton:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+        }
+        #resultText {
+            opacity: 0.6;
+        }
+        #loading {
+            text-align: center;
+            display: none;
+        }
+        .loading:after {
+            content: '.';
+            animation: dots 1s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% {
+                color: rgba(0,0,0,0);
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            40% {
+                color: #333;
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            60% {
+                text-shadow:
+                    .25em 0 0 #333,
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            80%, 100% {
+                text-shadow:
+                    .25em 0 0 #333,
+                    .5em 0 0 #333;
+            }
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        footer a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .no-underline {
+            text-decoration: none; /* Remove underline by default */
+            /* color: inherit; Optional: Keep the default text color */
+        }
+
+        .no-underline:hover {
+            text-decoration: none; /* Keep underline removed on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Disaster Identification Project</h1>
+        
+        <div class="input-sections">
+            <div class="input-section">
+                <div class="upload-area" id="dropArea">
+                    <p>Drag and drop file here</p>
+                    <p>or</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="showImagePreview()">
+                    <button onclick="document.getElementById('fileInput').click()">Choose File</button>
+                    <img id="imagePreview" src="" alt="Image Preview" style="display:none; max-width: 100%; margin-top: 10px;">
+                </div>
+            </div>
+            <div class="input-section">
+                <textarea id="textInput" placeholder="Enter text description here"></textarea>
+            </div>
+            <div class="input-section" id="result">
+                <span id="resultText">Results</span>
+            </div>
+        </div>
+
+        <button id="predictButton">Predict</button>
+        <div id="loading" class="loading">Processing</div>
+    </div>
+
+    <footer>
+        <a href="https://github.com/rakshitgarg99" target="_blank" class="no-underline">GitHub</a>
+        <a href="https://linkedin.com/in/rakshit-on-work/" target="_blank" class="no-underline">LinkedIn</a>
+        <p><b>Made with consistency & passion by Rakshit Garg💪🏻</b></p>
+    </footer>
+
+    <script>
+        // Get elements
+        const fileInput = document.getElementById('fileInput');
+        const textInput = document.getElementById('textInput');
+        const predictButton = document.getElementById('predictButton');
+        const resultText = document.getElementById('resultText');
+        const loading = document.getElementById('loading');
+        const imagePreview = document.getElementById('imagePreview');
+
+        // Function to show image preview
+        function showImagePreview() {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block'; // Show the image
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Predict function
+        predictButton.addEventListener('click', async function() {
+            loading.style.display = 'block';
+            resultText.textContent = 'Processing...';
+
+            let url, body, contentType;
+
+            if (fileInput.files.length > 0) {
+                url = '/predict_image';
+                body = new FormData();
+                body.append('image', fileInput.files[0]);
+            } else if (textInput.value.trim()) {
+                url = '/predict_text';
+                body = JSON.stringify({ text: textInput.value });
+                contentType = 'application/json';
+            } else {
+                resultText.textContent = 'Please provide an image or text input.';
+                loading.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: body,
+                    headers: contentType ? { 'Content-Type': contentType } : {}
+                });
+                const data = await response.json();
+                resultText.textContent = `Prediction: ${data.predicted_class}`;
+            } catch (error) {
+                resultText.textContent = 'Error: Unable to process the request.';
+            } finally {
+                loading.style.display = 'none';
+                // Clear inputs after prediction
+                fileInput.value = '';
+                textInput.value = '';
+                imagePreview.style.display = 'none'; // Hide image preview
+            }
+        });
+    </script>
+</body>
+</html>
