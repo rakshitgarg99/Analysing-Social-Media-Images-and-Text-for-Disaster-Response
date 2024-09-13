@@ -36,10 +36,10 @@ def preprocess_image(img_path, target_size=(256, 256)):
     return img_array
 
 # Load the text-based disaster prediction model
-text_model = tf.keras.models.load_model('models/bert_disaster_model.h5')
+text_model = tf.keras.models.load_model('models/DL_text_disaster_model.h5')
 
 # Load the tokenizer used for text preprocessing
-with open('models/bert_tokenizer.pickle', 'rb') as handle:
+with open('models/DL_text_tokenizer.pickle', 'rb') as handle:
     tokenizer = pickle.load(handle)
 
 # Set the maximum sequence length for text input
@@ -148,7 +148,7 @@ def predict_text():
     # Return the prediction result as JSON
     return jsonify({
         'predicted_class': result['result'],
-        'confidence': result['confidence']
+        # 'confidence': result['confidence']
     })
 
 # Run the Flask app in debug mode
